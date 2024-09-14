@@ -283,7 +283,7 @@ pub enum ParseResult {
 /// Parses NMEA sentences and stores intermediate parsing state.
 /// Parser is tolerant for errors so you should not reinitialize it after errors.
 pub struct Parser {
-    buffer: [u8; 79],
+    buffer: [u8; 120],
     buflen: usize,
     chksum: u8,
     expected_chksum: u8,
@@ -334,7 +334,7 @@ impl Parser {
     /// Constructs new Parser.
     pub fn new() -> Parser {
         Parser {
-            buffer: [0u8; 79],
+            buffer: [0u8; 120],
             buflen: 0,
             chksum: 0,
             expected_chksum: 0,
