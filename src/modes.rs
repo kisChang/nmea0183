@@ -1,6 +1,8 @@
 #[derive(Debug, PartialEq)]
 pub(crate) enum Status {
     Valid,
+    ValidNotice,
+    ValidDanger,
     NotValid,
 }
 
@@ -8,6 +10,9 @@ impl Status {
     pub(crate) fn from_str(st: &str) -> Result<Status, &'static str> {
         match st {
             "A" => Ok(Status::Valid),
+            "S" => Ok(Status::Valid),
+            "C" => Ok(Status::ValidNotice),
+            "U" => Ok(Status::ValidDanger),
             "V" => Ok(Status::NotValid),
             _ => Err("Invalid status field!"),
         }
@@ -23,12 +28,20 @@ pub enum Mode {
     Differential,
     /// Estimated position from previous data and movement model.
     Estimated,
+    /// RTK Float
+    FRTK,
+    /// RTK Int
+    IRTK,
+    /// High Precision Mode
+    PrecisionHigh,
     /// Set by operator.
     Manual,
     /// Simulation mode.
     Simulator,
     /// Completely invalid state. Position data if present could not be used.
     NotValid,
+    /// V=模式无效（不包括 A, D）
+    Invalid,
 }
 
 impl Mode {
@@ -37,6 +50,9 @@ impl Mode {
         match self {
             Mode::Autonomous => true,
             Mode::Differential => true,
+            Mode::FRTK => true,
+            Mode::IRTK => true,
+            Mode::PrecisionHigh => true,
             _ => false,
         }
     }
@@ -48,8 +64,12 @@ impl Mode {
             Some("A") => Ok(Mode::Autonomous),
             Some("D") => Ok(Mode::Differential),
             Some("E") => Ok(Mode::Estimated),
+            Some("F") => Ok(Mode::FRTK),
             Some("M") => Ok(Mode::Manual),
             Some("S") => Ok(Mode::Simulator),
+            Some("P") => Ok(Mode::PrecisionHigh),
+            Some("R") => Ok(Mode::IRTK),
+            Some("V") => Ok(Mode::Invalid),
             Some("N") => Ok(Mode::NotValid),
             None => Err("Mode field shoud not be null!"),
             Some("") => Err("Mode should not be empty string!"),
@@ -64,12 +84,16 @@ impl Mode {
             Some("A") => Ok(Mode::Autonomous),
             Some("D") => Ok(Mode::Differential),
             Some("E") => Ok(Mode::Estimated),
+            Some("F") => Ok(Mode::FRTK),
             Some("M") => Ok(Mode::Manual),
             Some("S") => Ok(Mode::Simulator),
+            Some("P") => Ok(Mode::PrecisionHigh),
+            Some("R") => Ok(Mode::IRTK),
+            Some("V") => Ok(Mode::Invalid),
             Some("N") => Ok(Mode::NotValid),
             None => match alternate {
-                Status::Valid => Ok(Mode::Autonomous),
                 Status::NotValid => Ok(Mode::NotValid),
+                _ => Ok(Mode::Autonomous),
             },
             Some("") => Err("Mode should not be empty string!"),
             _ => Err("Wrong mode character!"),
