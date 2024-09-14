@@ -11,10 +11,15 @@ impl Status {
         match st {
             "A" => Ok(Status::Valid),
             "S" => Ok(Status::Valid),
+            "D" => Ok(Status::Valid),
+            "F" => Ok(Status::Valid),
+            "P" => Ok(Status::Valid),
             "C" => Ok(Status::ValidNotice),
             "U" => Ok(Status::ValidDanger),
             "V" => Ok(Status::NotValid),
-            _ => Err("Invalid status field!"),
+            // Status遇到不认识的不报错仅当NotValid处理
+            // _ => Err("Invalid status field!"),
+            _ => Ok(Status::NotValid),
         }
     }
 }
