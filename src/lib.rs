@@ -88,6 +88,8 @@ pub mod satellite;
 pub(crate) mod gga;
 pub(crate) mod gsa;
 pub(crate) mod gsv;
+pub(crate) mod hpr;
+pub(crate) mod rot;
 
 pub(crate) mod gll;
 pub(crate) mod modes;
@@ -111,6 +113,9 @@ pub use mtk::MTKPacketType;
 pub use mtk::PMTKSPF;
 pub use rmc::RMC;
 pub use vtg::VTG;
+use crate::hpr::HPR;
+use crate::rot::ROT;
+
 /// Source of NMEA sentence like GPS, GLONASS or other.
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum Source {
@@ -201,6 +206,10 @@ pub enum Sentence {
     GSV = 0b100000,
     /// GPS DOP and active satellites.
     GSA = 0b1000000,
+    /// 包含双天线载体的航向角、俯仰角、横滚角等信息 $GNHPR
+    HPR = 0b1000001,
+    /// 旋转速度和方向信息 $GNROT
+    ROT = 0b1000011,
 }
 
 impl TryFrom<&str> for Sentence {
@@ -213,6 +222,8 @@ impl TryFrom<&str> for Sentence {
             "GLL" => Ok(Sentence::GLL),
             "VTG" => Ok(Sentence::VTG),
             "GSV" => Ok(Sentence::GSV),
+            "HPR" => Ok(Sentence::HPR),
+            "ROT" => Ok(Sentence::ROT),
             #[cfg(feature = "mtk")]
             "PMTK" => Ok(Sentence::PMTK),
             "GSA" => Ok(Sentence::GSA),
@@ -278,6 +289,9 @@ pub enum ParseResult {
     PMTK(Option<PMTKSPF>),
     /// The GPS DOP and active satellites. Provides information about the DOP and the active satellites used for the current fix.
     GSA(Option<GSA>),
+
+    HPR(Option<HPR>),
+    ROT(Option<ROT>),
 }
 
 /// Parses NMEA sentences and stores intermediate parsing state.
@@ -454,6 +468,8 @@ impl Parser {
             Sentence::VTG => Ok(Some(ParseResult::VTG(VTG::parse(source, &mut iter)?))),
             Sentence::GSV => Ok(Some(ParseResult::GSV(GSV::parse(source, &mut iter)?))),
             Sentence::GSA => Ok(Some(ParseResult::GSA(GSA::parse(source, &mut iter)?))),
+            Sentence::HPR => Ok(Some(ParseResult::HPR(HPR::parse(source, &mut iter)?))),
+            Sentence::ROT => Ok(Some(ParseResult::ROT(ROT::parse(source, &mut iter)?))),
             #[cfg(feature = "mtk")]
             Sentence::PMTK => {
                 if sentence_field.len() < 7 {
