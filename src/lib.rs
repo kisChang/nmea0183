@@ -113,8 +113,8 @@ pub use mtk::MTKPacketType;
 pub use mtk::PMTKSPF;
 pub use rmc::RMC;
 pub use vtg::VTG;
-use crate::hpr::HPR;
-use crate::rot::ROT;
+pub use hpr::HPR;
+pub use rot::ROT;
 
 /// Source of NMEA sentence like GPS, GLONASS or other.
 #[derive(Debug, Copy, Clone, PartialEq)]
