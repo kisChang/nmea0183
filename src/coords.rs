@@ -334,7 +334,7 @@ impl Course {
 #[derive(Debug, PartialEq, Clone)]
 pub struct MagneticCourse {
     /// Course in degrees from Magnetic North Pole rotated clockwise.
-    degrees: f32,
+    pub degrees: f32,
 }
 
 impl From<f32> for MagneticCourse {
